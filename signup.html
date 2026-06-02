@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign Up — EstateVoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --dark: #0A0A0A;
+    --card: #141414;
+    --muted: #777;
+    --text: #F0EBE0;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', sans-serif;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .signup-container {
+    max-width: 420px;
+    width: 100%;
+    background: var(--card);
+    padding: 48px;
+    border: 1px solid #222;
+    border-radius: 6px;
+  }
+
+  .signup-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .signup-logo {
+    font-family: var(--serif);
+    font-size: 24px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+
+  .signup-title {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .signup-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0A0A0A;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  input::placeholder {
+    color: #555;
+  }
+
+  .form-error {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .form-error.show {
+    display: block;
+  }
+
+  .btn-signup {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: #0A0A0A;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: var(--sans);
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-signup:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .btn-signup:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .signup-footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 13px;
+  }
+
+  .signup-footer a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  .success-message {
+    background: #1a3a1a;
+    border: 1px solid #2d5a2d;
+    color: #90ee90;
+    padding: 16px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    display: none;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="signup-container">
+  <div class="signup-header">
+    <div class="signup-logo">EstateVoice</div>
+    <h1 class="signup-title">Get Started Free</h1>
+    <p class="signup-subtitle">Create your account and start generating captions in seconds.</p>
+  </div>
+
+  <div class="success-message" id="successMessage">
+    Account created! Redirecting to your dashboard...
+  </div>
+
+  <form id="signupForm" onsubmit="handleSignup(event)">
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" placeholder="Your name" required />
+      <div class="form-error" id="nameError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="your@email.com" required />
+      <div class="form-error" id="emailError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Min. 8 characters" minlength="8" required />
+      <div class="form-error" id="passwordError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" name="confirm" placeholder="Repeat password" required />
+      <div class="form-error" id="confirmError"></div>
+    </div>
+
+    <button type="submit" class="btn-signup" id="submitBtn">Create Account</button>
+  </form>
+
+  <div class="signup-footer">
+    Already have an account? <a href="/">Log in</a>
+  </div>
+</div>
+
+<script>
+  async function handleSignup(event) {
+    event.preventDefault()
+    
+    const form = document.getElementById('signupForm')
+    const submitBtn = document.getElementById('submitBtn')
+    const name = document.getElementById('name').value
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    const confirm = document.getElementById('confirm').value
+
+    // Clear previous errors
+    document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'))
+
+    // Validate
+    if (!name.trim()) {
+      document.getElementById('nameError').textContent = 'Please enter your name'
+      document.getElementById('nameError').classList.add('show')
+      return
+    }
+
+    if (password !== confirm) {
+      document.getElementById('confirmError').textContent = 'Passwords do not match'
+      document.getElementById('confirmError').classList.add('show')
+      return
+    }
+
+    // Disable button
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Creating account...'
+
+    try {
+      const res = await fetch('/api/create-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        const fieldError = data.field || 'email'
+        document.getElementById(fieldError + 'Error').textContent = data.error
+        document.getElementById(fieldError + 'Error').classList.add('show')
+        submitBtn.disabled = false
+        submitBtn.textContent = 'Create Account'
+        return
+      }
+
+      // Success!
+      document.getElementById('successMessage').classList.add('show')
+      form.style.display = 'none'
+      document.querySelector('.signup-footer').style.display = 'none'
+
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        window.location.href = '/dashboard.html'
+      }, 2000)
+
+    } catch (err) {
+      alert('Something went wrong. Please try again.')
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Create Account'
+    }
+  }
+</script>
+
+</body>
+</html>
