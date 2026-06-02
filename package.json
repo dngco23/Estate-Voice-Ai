@@ -1,0 +1,12 @@
+{
+  "name": "estatevoice",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "stripe": "^16.0.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.0.0"
+  }
+}
