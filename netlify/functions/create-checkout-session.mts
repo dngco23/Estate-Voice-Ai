@@ -24,17 +24,19 @@ export default async (req: Request) => {
     return Response.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-if (plan === 'starter') {
-  // For free plan, redirect to signup
-  return Response.json({ url: `${origin}/signup.html` })
-}
+  const origin = new URL(req.url).origin  // <-- Move this BEFORE the starter check
 
-const priceId = PLAN_PRICE_IDS[plan]
-if (!priceId) {
-  return Response.json({ error: 'Unknown plan' }, { status: 400 })
-}
+  if (plan === 'starter') {
+    // For free plan, redirect to signup
+    return Response.json({ url: `${origin}/signup.html` })
+  }
+
+  const priceId = PLAN_PRICE_IDS[plan]
+  if (!priceId) {
+    return Response.json({ error: 'Unknown plan' }, { status: 400 })
+  }
+
   const stripe = new Stripe(secretKey)
-  const origin = new URL(req.url).origin
 
   try {
     const session = await stripe.checkout.sessions.create({
