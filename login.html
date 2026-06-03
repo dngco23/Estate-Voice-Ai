@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In — EstateVoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C; --dark: #0A0A0A; --card: #141414;
+    --muted: #777; --text: #F0EBE0;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', sans-serif; --border: #1e1e1e;
+  }
+  body { background: var(--dark); color: var(--text); font-family: var(--sans); font-weight: 300; min-height: 100vh; display: flex; flex-direction: column; }
+  nav { border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { font-family: var(--serif); font-size: 20px; color: var(--gold); text-decoration: none; }
+  .nav-link { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+  .page-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 20px; }
+  .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 48px 40px; width: 100%; max-width: 440px; }
+  .auth-eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .auth-title { font-family: var(--serif); font-size: 36px; font-weight: 300; margin-bottom: 8px; }
+  .auth-sub { font-size: 13px; color: var(--muted); margin-bottom: 36px; line-height: 1.6; }
+  .divider { width: 32px; height: 1px; background: var(--gold); margin-bottom: 32px; }
+  .field { margin-bottom: 20px; }
+  label { display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  input { width: 100%; background: var(--dark); border: 1px solid #2a2a2a; border-radius: 3px; padding: 13px 16px; color: var(--text); font-size: 15px; font-family: var(--sans); font-weight: 300; outline: none; transition: border-color 0.2s; }
+  input:focus { border-color: #C9A84C55; }
+  .btn { width: 100%; padding: 15px; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; font-family: var(--sans); font-weight: 500; border-radius: 3px; cursor: pointer; transition: opacity 0.2s; border: none; background: var(--gold); color: #0A0A0A; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 3px; padding: 12px 16px; color: #ff8888; font-size: 13px; margin-bottom: 20px; display: none; }
+  .auth-footer { text-align: center; margin-top: 28px; font-size: 13px; color: var(--muted); }
+  .auth-footer a { color: var(--gold); text-decoration: none; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #0A0A0A44; border-top-color: #0A0A0A; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">EstateVoice</a>
+  <a href="/signup.html" class="nav-link">Sign Up</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="auth-card">
+    <div class="auth-eyebrow">Welcome Back</div>
+    <h1 class="auth-title">Log In</h1>
+    <p class="auth-sub">Good to see you again. Let's create some content.</p>
+    <div class="divider"></div>
+
+    <div class="error" id="errorBox"></div>
+
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password" autocomplete="current-password" />
+    </div>
+
+    <button class="btn" id="loginBtn" onclick="handleLogin()">
+      ✦ Log In
+    </button>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/signup.html">Sign up free</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function handleLogin() {
+    const btn = document.getElementById('loginBtn');
+    const errorBox = document.getElementById('errorBox');
+    errorBox.style.display = 'none';
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      errorBox.textContent = 'Please enter your email and password.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorBox.textContent = data.error || 'Invalid email or password.';
+        errorBox.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '✦ Log In';
+        return;
+      }
+
+      // Store session token
+      if (data.session) {
+        localStorage.setItem('ev_token', data.session.access_token);
+        localStorage.setItem('ev_user', JSON.stringify(data.user));
+      }
+
+      window.location.href = '/app.html';
+
+    } catch (err) {
+      errorBox.textContent = 'Could not connect. Please try again.';
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '✦ Log In';
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+  });
+</script>
+</body>
+</html>
