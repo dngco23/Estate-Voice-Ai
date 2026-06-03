@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EstateVoice — AI Content Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C;
+    --dark: #0A0A0A;
+    --card: #141414;
+    --muted: #777;
+    --text: #F0EBE0;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', sans-serif;
+    --border: #1e1e1e;
+  }
+  body { background: var(--dark); color: var(--text); font-family: var(--sans); font-weight: 300; min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,10,10,0.95);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-family: var(--serif); font-size: 20px; color: var(--gold); letter-spacing: 0.05em; text-decoration: none; }
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+  .nav-link { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-link:hover { color: var(--text); }
+  .nav-upgrade {
+    background: var(--gold); color: #0A0A0A; border: none;
+    padding: 8px 20px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    font-family: var(--sans); font-weight: 500; cursor: pointer; border-radius: 2px;
+    text-decoration: none; display: inline-block; transition: opacity 0.2s;
+  }
+  .nav-upgrade:hover { opacity: 0.85; }
+
+  /* MAIN */
+  .container { max-width: 780px; margin: 0 auto; padding: 48px 40px 80px; }
+
+  .page-eyebrow { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .page-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 44px); font-weight: 300; margin-bottom: 8px; }
+  .page-sub { font-size: 14px; color: var(--muted); margin-bottom: 40px; line-height: 1.7; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .tab {
+    padding: 12px 28px; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-family: var(--sans); transition: all 0.2s;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--gold); }
+
+  /* FORM */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 32px; margin-bottom: 24px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  input, textarea {
+    width: 100%; background: var(--dark); border: 1px solid #2a2a2a;
+    border-radius: 3px; padding: 12px 16px; color: var(--text);
+    font-size: 15px; font-family: var(--sans); font-weight: 300;
+    outline: none; transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: #C9A84C55; }
+  textarea { resize: vertical; min-height: 88px; }
+
+  /* TONE GRID */
+  .tone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tone-btn {
+    background: var(--dark); border: 1px solid #2a2a2a;
+    border-radius: 3px; padding: 10px 8px; color: var(--muted);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s; font-family: var(--sans); text-align: center;
+  }
+  .tone-btn.active { background: #C9A84C15; border-color: var(--gold); color: var(--gold); }
+
+  /* CHECKBOX */
+  .check-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .check-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+  .check-row label { margin: 0; cursor: pointer; font-size: 11px; }
+
+  /* SUBMIT */
+  .btn-generate {
+    background: var(--gold); color: #0A0A0A; border: none;
+    padding: 16px 40px; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: var(--sans); font-weight: 500; cursor: pointer; border-radius: 3px;
+    display: flex; align-items: center; gap: 10px; transition: opacity 0.2s;
+  }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* RESULT */
+  .result-card {
+    background: #0D0D0D; border: 1px solid #C9A84C33;
+    border-radius: 4px; padding: 28px 32px; margin-top: 28px; position: relative;
+    animation: fadeIn 0.3s ease;
+  }
+  .result-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .result-text { font-size: 15px; line-height: 1.85; color: var(--text); white-space: pre-wrap; font-family: var(--sans); font-weight: 300; }
+  .copy-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: 1px solid #333; color: var(--muted);
+    padding: 6px 14px; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    border-radius: 2px; cursor: pointer; transition: all 0.2s; font-family: var(--sans);
+  }
+  .copy-btn.copied { border-color: var(--gold); color: var(--gold); }
+
+  /* ERROR */
+  .error { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 3px; padding: 14px 18px; color: #ff8888; font-size: 13px; margin-top: 16px; }
+
+  /* USAGE BAR */
+  .usage-bar {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px 24px; margin-bottom: 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  }
+  .usage-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .usage-count { font-family: var(--serif); font-size: 22px; color: var(--gold); }
+  .usage-track { flex: 1; height: 3px; background: #222; border-radius: 2px; max-width: 200px; }
+  .usage-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+  .upgrade-nudge { font-size: 11px; color: var(--muted); }
+  .upgrade-nudge a { color: var(--gold); text-decoration: none; }
+
+  /* SPINNER */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid #0A0A0A44; border-top-color: #0A0A0A;
+    border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    .container { padding: 32px 20px 60px; }
+    nav { padding: 16px 20px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .tone-grid { grid-template-columns: repeat(2, 1fr); }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">EstateVoice</a>
+  <div class="nav-right">
+    <a href="/#pricing" class="nav-link">Pricing</a>
+    <a href="/#pricing" class="nav-upgrade">Upgrade ✦</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-eyebrow">AI Content Studio</div>
+  <h1 class="page-title">Create your content.</h1>
+  <p class="page-sub">Write scroll-stopping Instagram captions and bios in under 60 seconds.</p>
+
+  <!-- USAGE BAR -->
+  <div class="usage-bar" id="usageBar">
+    <div>
+      <div class="usage-label">Free Plan Usage</div>
+      <div class="upgrade-nudge">Need more? <a href="/#pricing">Upgrade to Agent →</a></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="usage-track"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+      <div class="usage-count"><span id="usageNum">3</span> left</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('caption', this)">📸 Listing Caption</button>
+    <button class="tab" onclick="switchTab('bio', this)">👤 Agent Bio</button>
+  </div>
+
+  <!-- CAPTION FORM -->
+  <div id="captionForm">
+    <div class="card">
+      <div class="grid2">
+        <div class="field">
+          <label>Property Type *</label>
+          <input id="propType" type="text" placeholder="e.g. 3BR Condo, Luxury Villa..." />
+        </div>
+        <div class="field">
+          <label>Location *</label>
+          <input id="location" type="text" placeholder="e.g. Bondi Beach, Sydney" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Listing Price</label>
+        <input id="price" type="text" placeholder="e.g. $1,250,000" />
+      </div>
+      <div class="field">
+        <label>Key Features</label>
+        <textarea id="features" placeholder="e.g. ocean views, chef's kitchen, rooftop pool, private garage..."></textarea>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <div class="tone-grid" id="toneGrid">
+          <button class="tone-btn active" onclick="setTone(this)">Luxury</button>
+          <button class="tone-btn" onclick="setTone(this)">Friendly</button>
+          <button class="tone-btn" onclick="setTone(this)">Urgent</button>
+          <button class="tone-btn" onclick="setTone(this)">Storytelling</button>
+          <button class="tone-btn" onclick="setTone(this)">Professional</button>
+          <button class="tone-btn" onclick="setTone(this)">Playful</button>
+        </div>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="hashtags" checked />
+        <label for="hashtags">Include hashtags</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO FORM -->
+  <div id="bioForm" style="display:none;">
+    <div class="card">
+      <div class="grid2">
+        <div class="field">
+          <label>Your Name *</label>
+          <input id="agentName" type="text" placeholder="e.g. Sarah Chen" />
+        </div>
+        <div class="field">
+          <label>Your City / Market *</label>
+          <input id="city" type="text" placeholder="e.g. Melbourne, VIC" />
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Years of Experience</label>
+          <input id="years" type="text" placeholder="e.g. 8 years" />
+        </div>
+        <div class="field">
+          <label>Specialty</label>
+          <input id="specialty" type="text" placeholder="e.g. Luxury apartments, First-home buyers..." />
+        </div>
+      </div>
+      <div class="field">
+        <label>Your Personality / Style</label>
+        <textarea id="personality" placeholder="e.g. Straightforward, love helping young families find their first home..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="errorBox" class="error" style="display:none;"></div>
+
+  <button class="btn-generate" id="generateBtn" onclick="generate()">
+    ✦ Generate Caption
+  </button>
+
+  <div id="resultCard" class="result-card" style="display:none;">
+    <div class="result-label" id="resultLabel">Your Caption</div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResult()">Copy</button>
+    <div class="result-text" id="resultText"></div>
+  </div>
+</div>
+
+<script>
+  let currentTab = 'caption';
+  let currentTone = 'Luxury';
+  let usageLeft = parseInt(localStorage.getItem('ev_usage') ?? '3');
+
+  // Init usage display
+  updateUsage();
+
+  function updateUsage() {
+    const used = 3 - usageLeft;
+    document.getElementById('usageNum').textContent = Math.max(0, usageLeft);
+    document.getElementById('usageFill').style.width = (used / 3 * 100) + '%';
+    if (usageLeft <= 0) {
+      document.getElementById('usageBar').style.borderColor = '#5a1a1a';
+    }
+  }
+
+  function switchTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('captionForm').style.display = tab === 'caption' ? 'block' : 'none';
+    document.getElementById('bioForm').style.display = tab === 'bio' ? 'block' : 'none';
+    document.getElementById('generateBtn').textContent = tab === 'caption' ? '✦ Generate Caption' : '✦ Generate Bio';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+  }
+
+  function setTone(el) {
+    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentTone = el.textContent;
+  }
+
+  async function generate() {
+    const btn = document.getElementById('generateBtn');
+    const errorBox = document.getElementById('errorBox');
+    const resultCard = document.getElementById('resultCard');
+    errorBox.style.display = 'none';
+
+    // Usage check
+    if (usageLeft <= 0) {
+      errorBox.textContent = "You've used your 3 free generations. Upgrade to Agent for unlimited access.";
+      errorBox.style.display = 'block';
+      setTimeout(() => window.location.href = '/#pricing', 2000);
+      return;
+    }
+
+    let prompt = '';
+    if (currentTab === 'caption') {
+      const propType = document.getElementById('propType').value.trim();
+      const location = document.getElementById('location').value.trim();
+      if (!propType || !location) {
+        errorBox.textContent = 'Please fill in Property Type and Location.';
+        errorBox.style.display = 'block';
+        return;
+      }
+      const price = document.getElementById('price').value.trim();
+      const features = document.getElementById('features').value.trim();
+      const hashtags = document.getElementById('hashtags').checked;
+      prompt = `You are an expert real estate Instagram copywriter. Write an engaging Instagram caption for a real estate listing.\n\nProperty Type: ${propType}\nLocation: ${location}\n${price ? `Price: ${price}` : ''}\n${features ? `Key Features: ${features}` : ''}\nTone: ${currentTone}\n${hashtags ? 'Include 10-15 relevant real estate hashtags at the end.' : 'No hashtags.'}\n\nWrite ONE compelling caption. Be specific and evocative. Under 220 words. Use line breaks for readability. Max 2 emojis.`;
+    } else {
+      const agentName = document.getElementById('agentName').value.trim();
+      const city = document.getElementById('city').value.trim();
+      if (!agentName || !city) {
+        errorBox.textContent = 'Please fill in your Name and City.';
+        errorBox.style.display = 'block';
+        return;
+      }
+      const years = document.getElementById('years').value.trim();
+      const specialty = document.getElementById('specialty').value.trim();
+      const personality = document.getElementById('personality').value.trim();
+      prompt = `You are an expert real estate social media coach. Write a compelling Instagram bio for a real estate agent.\n\nAgent Name: ${agentName}\nCity/Market: ${city}\n${years ? `Years of Experience: ${years}` : ''}\n${specialty ? `Specialty: ${specialty}` : ''}\n${personality ? `Personality/Style: ${personality}` : ''}\n\nWrite a punchy Instagram bio. Max 150 chars for the main line. Then 3 bullet lines starting with an emoji. End with a CTA. Human, not corporate.`;
+    }
+
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+    resultCard.style.display = 'none';
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      const data = await res.json();
+      const text = data.content?.[0]?.text;
+
+      if (text) {
+        document.getElementById('resultText').textContent = text;
+        document.getElementById('resultLabel').textContent = currentTab === 'caption' ? 'Your Caption' : 'Your Bio';
+        resultCard.style.display = 'block';
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Deduct usage
+        usageLeft = Math.max(0, usageLeft - 1);
+        localStorage.setItem('ev_usage', usageLeft);
+        updateUsage();
+      } else {
+        throw new Error('No content returned');
+      }
+    } catch (err) {
+      errorBox.textContent = 'Something went wrong. Please try again.';
+      errorBox.style.display = 'block';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = currentTab === 'caption' ? '✦ Generate Caption' : '✦ Generate Bio';
+  }
+
+  function copyResult() {
+    const text = document.getElementById('resultText').textContent;
+    navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }
+</script>
+
+</body>
+</html>
