@@ -264,7 +264,8 @@
 <script>
   let currentTab = 'caption';
   let currentTone = 'Luxury';
-  let usageLeft = parseInt(localStorage.getItem('ev_usage') ?? '3');
+  const adminEmails = ['darcy.reid@outlook.com.au'];
+  let usageLeft = adminEmails.includes(localStorage.getItem('ev_user') ? JSON.parse(localStorage.getItem('ev_user')).email : '') ? 999 : parseInt(localStorage.getItem('ev_usage') ?? '3');
 
   // Init usage display
   updateUsage();
